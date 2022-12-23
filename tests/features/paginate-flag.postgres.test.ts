@@ -416,4 +416,27 @@ describe('GH issue 2095', () => {
     expect(users[0].id).toBe('id-user-01');
   });
 
+  test('getting users with offset 1. must be: [id-user-02, id-user-01]', async () => {
+    const [users, total] = await orm.em.findAndCount(
+      User,
+      { groups: { $in: ['id-group-01', 'id-group-02', 'id-group-03'] } },
+      { offset: 1, orderBy: { id: 'desc' } },
+    );
+    expect(users).toHaveLength(2);
+    expect(total).toBe(3);
+    expect(users[0].id).toBe('id-user-02');
+    expect(users[1].id).toBe('id-user-01');
+  });
+
+  test('getting users with offset 2. must be: [id-user-01]', async () => {
+    const [users, total] = await orm.em.findAndCount(
+      User,
+      { groups: { $in: ['id-group-01', 'id-group-02', 'id-group-03'] } },
+      { offset: 2, orderBy: { id: 'desc' } },
+    );
+    expect(users).toHaveLength(1);
+    expect(total).toBe(3);
+    expect(users[0].id).toBe('id-user-01');
+  });
+
 });
