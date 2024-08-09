@@ -507,11 +507,19 @@ The code is getting a bit messy, let's use [`em.create()`](/api/core/class/Entit
 -const user = new User(body.fullName, body.email, body.password);
 -user.bio = body.bio ?? '';
 -user.social = body.social as Social;
-+const user = db.user.create(request.body as RequiredEntityData);
++const user = db.user.create(request.body as RequiredEntityData<User>);
 await db.em.persist(user).flush();
 ```
 
 MikroORM will perform some basic validation automatically, but it is generally a good practice to validate the user input explicitly. Let's use [Zod](https://github.com/colinhacks/zod) for it, it will also help with making the TypeScript compiler happy without the type assertion.
+
+First, install the `zod` package.
+
+```bash npm2yarn
+npm install zod
+```
+
+Then you can create the schema objects:
 
 ```ts title='modules/user/routes.ts'
 const socialSchema = z.object({

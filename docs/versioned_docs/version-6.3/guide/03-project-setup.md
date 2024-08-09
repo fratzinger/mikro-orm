@@ -216,10 +216,13 @@ Let's create one more utility file before we get to the first test, and put it i
 ```ts title='utils.ts'
 import { bootstrap } from '../src/app.js';
 import { initORM } from '../src/db.js';
+import config from '../src/mikro-orm.config.js';
 
 export async function initTestApp(port: number) {
   // this will create all the ORM services and cache them
   const { orm } = await initORM({
+    // first, include the main config
+    ...config,
     // no need for debug information, it would only pollute the logs
     debug: false,
     // we will use in-memory database, this way we can easily parallelize our tests
@@ -426,9 +429,9 @@ And adjust the test assertion, as we now get 3 articles in the feed:
 ```ts title='article.test.ts'
 expect(res.json()).toMatchObject({
   items: [
-    { author: 1, slug: 'title-13', title: 'title 1/3', text: 'text text text 1/3' },
-    { author: 1, slug: 'title-23', title: 'title 2/3', text: 'text text text 2/3' },
-    { author: 1, slug: 'title-33', title: 'title 3/3', text: 'text text text 3/3' },
+    { author: 1, slug: 'title-13', title: 'title 1/3' },
+    { author: 1, slug: 'title-23', title: 'title 2/3' },
+    { author: 1, slug: 'title-33', title: 'title 3/3' },
   ],
   total: 3,
 });
