@@ -604,10 +604,7 @@ Maybe you want to check, or regenerate your yarn.lock or package-lock.json file?
     });
   });
 
-  describe.each([
-    ['jiti'],
-    ['tsimp'],
-  ] as const)('registers %s loader with dynamicImportProvider callback', (loader) => {
+  describe.each(['jiti', 'tsimp'] as const)('registers %s loader with dynamicImportProvider callback', (loader) => {
     afterEach(() => {
       delete (globalThis as any).dynamicImportProvider;
     });

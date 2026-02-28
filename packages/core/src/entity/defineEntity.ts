@@ -33,6 +33,7 @@ import type {
   FormulaCallback,
   EntityCtor,
   IsNever,
+  IWrappedEntity,
 } from '../typings.js';
 import type { Raw } from '../utils/RawQueryFragment.js';
 import type { ScalarReference } from './Reference.js';
@@ -1004,7 +1005,23 @@ type InferColumnType<T extends string> =
   T extends 'json' | 'jsonb' ? any :
   any;
 
-export type InferEntityFromProperties<Properties extends Record<string, any>, PK extends (keyof Properties)[] | undefined = undefined, Base = never, Repository = never> = {
+// Methods using `<Entity extends this>` in BaseEntity resolve `this` to BaseEntity
+// in intersection types, losing the entity's own properties. We fix this by prepending
+// correctly-typed method signatures from IWrappedEntity (which uses explicit Entity generic)
+// before the Base in the intersection — TypeScript picks earlier overloads first.
+type BaseEntityMethodKeys = 'toObject' | 'toPOJO' | 'serialize' | 'assign' | 'populate' | 'init' | 'toReference';
+
+export type InferEntityFromProperties<Properties extends Record<string, any>, PK extends (keyof Properties)[] | undefined = undefined, Base = never, Repository = never> =
+  (IsNever<Base> extends true ? {} :
+    Base extends { toObject(...args: any[]): any }
+      ? Pick<IWrappedEntity<{
+          -readonly [K in keyof Properties]: InferBuilderValue<MaybeReturnType<Properties[K]>>;
+        } & {
+          [PrimaryKeyProp]?: InferCombinedPrimaryKey<Properties, PK, Base>;
+        } & (IsNever<Repository> extends true ? {} : { [EntityRepositoryType]?: Repository extends Constructor<infer R> ? R : Repository })
+        & Omit<Base, typeof PrimaryKeyProp>>, BaseEntityMethodKeys>
+      : {})
+  & {
   -readonly [K in keyof Properties]: InferBuilderValue<MaybeReturnType<Properties[K]>>;
 } & {
   [PrimaryKeyProp]?: InferCombinedPrimaryKey<Properties, PK, Base>;

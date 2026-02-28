@@ -127,7 +127,7 @@ bench('em.populate() return type - plain', () => {
   type R = ReturnType<typeof em.populate<Author>>;
   const x = {} as R;
   void x;
-}).types([149, 'instantiations']);
+}).types([154, 'instantiations']);
 
 // ============================================
 // EntityDTO - used by toObject(), serialize()
