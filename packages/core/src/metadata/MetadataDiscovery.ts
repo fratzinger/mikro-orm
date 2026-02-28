@@ -1779,7 +1779,7 @@ export class MetadataDiscovery {
 
     if (this.platform.usesEnumCheckConstraints() && !meta.embeddable) {
       for (const prop of meta.props) {
-        if (prop.enum && !prop.nativeEnumName && prop.items?.every(item => typeof item === 'string')) {
+        if (prop.enum && prop.persist !== false && !prop.nativeEnumName && prop.items?.every(item => typeof item === 'string')) {
           this.initFieldName(prop);
           meta.checks.push({
             name: this.namingStrategy.indexName(meta.tableName, prop.fieldNames, 'check'),
