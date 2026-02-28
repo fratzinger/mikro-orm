@@ -14,7 +14,7 @@ function getGlobalStorage(namespace: string): Dictionary {
 
 export class MetadataStorage {
 
-  static readonly PATH_SYMBOL = Symbol('MetadataStorage.PATH_SYMBOL');
+  static readonly PATH_SYMBOL = Symbol.for('@mikro-orm/core/MetadataStorage.PATH_SYMBOL');
 
   private static readonly metadata: Dictionary<EntityMetadata> = getGlobalStorage('metadata');
   private readonly metadata = new Map<EntityName, EntityMetadata>();

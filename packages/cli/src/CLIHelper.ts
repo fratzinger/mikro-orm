@@ -117,10 +117,10 @@ export class CLIHelper {
     }
 
     /* v8 ignore next */
-    (globalThis as any).dynamicImportProvider = options.dynamicImportProvider ??= id => {
-      id = fileURLToPath(id);
-      return createRequire(process.cwd())(id);
-    };
+    options.dynamicImportProvider ??= (globalThis as any).dynamicImportProvider ?? ((id: string) => {
+      return createRequire(process.cwd())(fileURLToPath(id));
+    });
+    (globalThis as any).dynamicImportProvider = options.dynamicImportProvider;
   }
 
   static async getORM<D extends IDatabaseDriver = IDatabaseDriver>(contextName?: string, configPaths?: string[], opts: Partial<Options<D>> = {}): Promise<MikroORM<D>> {
@@ -336,13 +336,14 @@ export class CLIHelper {
     process.env.MIKRO_ORM_CLI_ALWAYS_ALLOW_TS ??= '1';
 
     const explicitLoader = tsLoader ?? process.env.MIKRO_ORM_CLI_TS_LOADER ?? 'auto';
+    const setEsmImportProvider = () => {
+      return (globalThis as any).dynamicImportProvider = (id: string) => import(id).then(mod => mod?.default ?? mod);
+    };
     const loaders = {
       swc: { esm: '@swc-node/register/esm-register', cjs: '@swc-node/register' },
       tsx: { esm: 'tsx/esm/api', cjs: 'tsx/cjs/api', cb: (tsx: any) => tsx.register({ tsconfig: configPath }) },
-      jiti: { cjs: 'jiti/register', cb: () => {
-        return (globalThis as any).dynamicImportProvider = (id: string) => import(id).then(mod => mod?.default ?? mod);
-      } },
-      tsimp: { cjs: 'tsimp/import' },
+      jiti: { cjs: 'jiti/register', cb: setEsmImportProvider },
+      tsimp: { cjs: 'tsimp/import', cb: setEsmImportProvider },
     } as const;
 
     for (const loader of Utils.keys(loaders)) {

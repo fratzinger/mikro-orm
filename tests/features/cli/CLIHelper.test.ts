@@ -561,6 +561,67 @@ Maybe you want to check, or regenerate your yarn.lock or package-lock.json file?
     packageSpy.mockRestore();
   });
 
+  describe('commonJSCompat', () => {
+    afterEach(() => {
+      delete (globalThis as any).dynamicImportProvider;
+      pkg.type = 'module';
+    });
+
+    test('is noop for ESM projects', () => {
+      delete (globalThis as any).dynamicImportProvider;
+      const options: any = {};
+      CLIHelper.commonJSCompat(options);
+      expect(options.dynamicImportProvider).toBeUndefined();
+      expect((globalThis as any).dynamicImportProvider).toBeUndefined();
+    });
+
+    test('sets createRequire fallback when no provider exists', () => {
+      pkg.type = 'commonjs';
+      const options: any = {};
+      CLIHelper.commonJSCompat(options);
+      expect(typeof options.dynamicImportProvider).toBe('function');
+      expect((globalThis as any).dynamicImportProvider).toBe(options.dynamicImportProvider);
+    });
+
+    test('preserves existing globalThis.dynamicImportProvider', () => {
+      pkg.type = 'commonjs';
+      const existingProvider = vi.fn();
+      (globalThis as any).dynamicImportProvider = existingProvider;
+      const options: any = {};
+      CLIHelper.commonJSCompat(options);
+      expect(options.dynamicImportProvider).toBe(existingProvider);
+      expect((globalThis as any).dynamicImportProvider).toBe(existingProvider);
+    });
+
+    test('prefers options.dynamicImportProvider over globalThis', () => {
+      pkg.type = 'commonjs';
+      const optionsProvider = vi.fn();
+      (globalThis as any).dynamicImportProvider = vi.fn();
+      const options: any = { dynamicImportProvider: optionsProvider };
+      CLIHelper.commonJSCompat(options);
+      expect(options.dynamicImportProvider).toBe(optionsProvider);
+      expect((globalThis as any).dynamicImportProvider).toBe(optionsProvider);
+    });
+  });
+
+  describe.each([
+    ['jiti'],
+    ['tsimp'],
+  ] as const)('registers %s loader with dynamicImportProvider callback', (loader) => {
+    afterEach(() => {
+      delete (globalThis as any).dynamicImportProvider;
+    });
+
+    test('sets dynamicImportProvider', async () => {
+      tryImportMock.mockReturnValueOnce({});
+      delete (globalThis as any).dynamicImportProvider;
+
+      await CLIHelper.registerTypeScriptSupport('tsconfig.json', loader);
+
+      expect(typeof (globalThis as any).dynamicImportProvider).toBe('function');
+    });
+  });
+
   test('dumpTable', async () => {
     const dumpSpy = vi.spyOn(CLIHelper, 'dump');
     dumpSpy.mockImplementation(() => void 0);
