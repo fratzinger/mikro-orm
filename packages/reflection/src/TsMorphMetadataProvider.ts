@@ -286,19 +286,6 @@ export class TsMorphMetadataProvider extends MetadataProvider {
     }
   }
 
-  override loadFromCache(meta: EntityMetadata, cache: EntityMetadata): void {
-    Object.values(cache.properties).forEach(prop => {
-      const metaProp = meta.properties[prop.name];
-
-      /* v8 ignore next */
-      if (metaProp?.enum && Array.isArray(metaProp.items)) {
-        delete prop.items;
-      }
-    });
-
-    Utils.mergeConfig(meta, cache);
-  }
-
   override saveToCache(meta: EntityMetadata): void {
     if (!this.useCache()) {
       return;
