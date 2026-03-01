@@ -1821,6 +1821,48 @@ describe('ManyToOneOptionsBuilder', () => {
 
     expect(Post.meta).toEqual(asSnapshot(PostSchema.meta));
   });
+
+  it('should support forceObject option', () => {
+    const Author = defineEntity({
+      name: 'FoAuthor',
+      forceObject: true,
+      properties: {
+        id: p.integer().primary(),
+        name: p.string(),
+      },
+    });
+
+    const Book = defineEntity({
+      name: 'FoBook',
+      properties: p => ({
+        id: p.integer().primary(),
+        title: p.string(),
+        author: () => p.manyToOne(Author).ref(),
+      }),
+    });
+
+    // with forceObject: true, EntityDTO should serialize relations as objects
+    type AuthorDTO = EntityDTO<InferEntity<typeof Author>>;
+    assert<IsExact<AuthorDTO, { id: number; name: string }>>(true);
+
+    // Book without forceObject — relation serializes as PK
+    type BookDTO = EntityDTO<InferEntity<typeof Book>>;
+    assert<IsExact<BookDTO, { id: number; title: string; author: number }>>(true);
+
+    // BookFo with forceObject — relation serializes as object with PK
+    const BookFo = defineEntity({
+      name: 'FoBookFo',
+      forceObject: true,
+      properties: p => ({
+        id: p.integer().primary(),
+        title: p.string(),
+        author: () => p.manyToOne(Author).ref(),
+      }),
+    });
+
+    type BookFoDTO = EntityDTO<InferEntity<typeof BookFo>>;
+    assert<IsExact<BookFoDTO, { id: number; title: string; author: { id: number } }>>(true);
+  });
 });
 
 

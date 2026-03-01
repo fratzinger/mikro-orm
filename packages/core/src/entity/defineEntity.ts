@@ -34,6 +34,8 @@ import type {
   EntityCtor,
   IsNever,
   IWrappedEntity,
+  DefineConfig,
+  Config,
 } from '../typings.js';
 import type { Raw } from '../utils/RawQueryFragment.js';
 import type { ScalarReference } from './Reference.js';
@@ -855,6 +857,7 @@ export interface EntityMetadataWithProperties<
   TPK extends (keyof TProperties)[] | undefined = undefined,
   TBase = never,
   TRepository = never,
+  TForceObject extends boolean = false,
 > extends Omit<Partial<EntityMetadata<InferEntityFromProperties<TProperties, TPK, TBase, TRepository>>>, 'properties' | 'extends' | 'primaryKeys' | 'hooks' | 'discriminatorColumn' | 'versionProperty' | 'concurrencyCheckKeys' | 'serializedPrimaryKey' | 'indexes' | 'uniques' | 'repository' | 'orderBy' > {
   name: TName;
   tableName?: TTableName;
@@ -866,6 +869,7 @@ export interface EntityMetadataWithProperties<
   hooks?: DefineEntityHooks;
   // Capture the repository type for InferEntity to include EntityRepositoryType
   repository?: () => TRepository;
+  forceObject?: TForceObject;
 
   // Table-per-type inheritance (each entity has its own table)
   inheritance?: 'tpt';
@@ -899,9 +903,10 @@ export function defineEntity<
   const TPK extends (keyof TProperties)[] | undefined = undefined,
   const TBase = never,
   const TRepository = never,
+  const TForceObject extends boolean = false,
 >(
-  meta: EntityMetadataWithProperties<TName, TTableName, TProperties, TPK, TBase, TRepository>,
-): EntitySchemaWithMeta<TName, TTableName, InferEntityFromProperties<TProperties, TPK, TBase, TRepository>, TBase, TProperties>;
+  meta: EntityMetadataWithProperties<TName, TTableName, TProperties, TPK, TBase, TRepository, TForceObject>,
+): EntitySchemaWithMeta<TName, TTableName, InferEntityFromProperties<TProperties, TPK, TBase, TRepository, TForceObject>, TBase, TProperties>;
 
 export function defineEntity<const TEntity = any, const TProperties extends Record<string, any> = Record<string, any>, const TClassName extends string = string, const TTableName extends string = string, const TBase = never, const TClass extends EntityCtor = EntityCtor<TEntity>>(
   meta: Omit<Partial<EntityMetadata<TEntity>>, 'properties' | 'extends' | 'className' | 'tableName' | 'hooks'> & {
@@ -918,7 +923,7 @@ export function defineEntity(
   meta: Omit<Partial<EntityMetadata>, 'properties' | 'extends'> & {
     extends?: EntityName;
     properties: Record<string, any> | ((properties: typeof propertyBuilders) => Record<string, any>);
-  } | EntityMetadataWithProperties<any, any, any, any, any, any>,
+  } | EntityMetadataWithProperties<any, any, any, any, any, any, any>,
 ): EntitySchemaWithMeta<any, any, any, any, any, any> {
   const { properties: propertiesOrGetter, ...options } = meta;
   const propertyOptions = typeof propertiesOrGetter === 'function' ? propertiesOrGetter(propertyBuilders) : propertiesOrGetter;
@@ -1011,7 +1016,7 @@ type InferColumnType<T extends string> =
 // before the Base in the intersection — TypeScript picks earlier overloads first.
 type BaseEntityMethodKeys = 'toObject' | 'toPOJO' | 'serialize' | 'assign' | 'populate' | 'init' | 'toReference';
 
-export type InferEntityFromProperties<Properties extends Record<string, any>, PK extends (keyof Properties)[] | undefined = undefined, Base = never, Repository = never> =
+export type InferEntityFromProperties<Properties extends Record<string, any>, PK extends (keyof Properties)[] | undefined = undefined, Base = never, Repository = never, ForceObject extends boolean = false> =
   (IsNever<Base> extends true ? {} :
     Base extends { toObject(...args: any[]): any }
       ? Pick<IWrappedEntity<{
@@ -1026,7 +1031,8 @@ export type InferEntityFromProperties<Properties extends Record<string, any>, PK
 } & {
   [PrimaryKeyProp]?: InferCombinedPrimaryKey<Properties, PK, Base>;
 } & (IsNever<Repository> extends true ? {} : { [EntityRepositoryType]?: Repository extends Constructor<infer R> ? R : Repository })
-& (IsNever<Base> extends true ? {} : Omit<Base, typeof PrimaryKeyProp>);
+& (IsNever<Base> extends true ? {} : Omit<Base, typeof PrimaryKeyProp>)
+& (ForceObject extends true ? { [Config]?: DefineConfig<{ forceObject: true }> } : {});
 
 // Combines primary keys from child properties and base entity
 type InferCombinedPrimaryKey<Properties extends Record<string, any>, PK, Base> =
