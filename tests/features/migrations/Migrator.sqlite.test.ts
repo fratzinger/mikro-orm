@@ -35,10 +35,16 @@ class MigrationTest2 extends Migration {
 describe('Migrator (sqlite)', () => {
 
   let orm: MikroORM<SqliteDriver>;
+  let originalMigrationsSettings: any;
 
   beforeAll(async () => {
     orm = await initORMSqlite();
+    originalMigrationsSettings = orm.config.get('migrations');
     await rm(process.cwd() + '/temp/migrations-3', { recursive: true, force: true });
+  });
+  beforeEach(() => {
+    orm.config.set('migrations', originalMigrationsSettings);
+    orm.config.resetServiceCache();
   });
   afterEach(async () => {
     await rm(process.cwd() + '/temp/migrations-3', { recursive: true, force: true });

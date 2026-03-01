@@ -44,6 +44,7 @@ class MigrationTest2 extends Migration {
 describe('Migrator', () => {
 
   let orm: MikroORM<MySqlDriver>;
+  let originalMigrationsSettings: any;
   const migrationsPath = process.cwd() + '/temp/migrations-123';
 
   beforeAll(async () => {
@@ -52,9 +53,11 @@ describe('Migrator', () => {
       migrations: { path: migrationsPath },
       loggerFactory: SimpleLogger.create,
     }, true);
+    originalMigrationsSettings = orm.config.get('migrations');
     await rm(migrationsPath, { recursive: true, force: true });
   });
   beforeEach(async () => {
+    orm.config.set('migrations', originalMigrationsSettings);
     orm.config.resetServiceCache();
     await rm(migrationsPath, { recursive: true, force: true });
   });

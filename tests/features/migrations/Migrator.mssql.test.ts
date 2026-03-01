@@ -46,6 +46,7 @@ class MigrationTest2 extends Migration {
 describe('Migrator (mssql)', () => {
 
   let orm: MikroORM;
+  let originalMigrationsSettings: any;
 
   beforeAll(async () => {
     orm = await MikroORM.init({
@@ -59,13 +60,17 @@ describe('Migrator (mssql)', () => {
       extensions: [Migrator],
     });
 
+    originalMigrationsSettings = orm.config.get('migrations');
     await orm.schema.refresh();
     await orm.schema.execute('alter table [custom].[book2] add [foo] varchar null constraint [book2_foo_default] default \'lol\';');
     await orm.schema.execute('alter table [custom].[book2] alter column [double] numeric;');
     await orm.schema.execute('alter table [custom].[test2] add [path] text null constraint [test2_path_default] default null;');
     await rm(process.cwd() + '/temp/migrations-222', { recursive: true, force: true });
   });
-  beforeEach(() => orm.config.resetServiceCache());
+  beforeEach(() => {
+    orm.config.set('migrations', originalMigrationsSettings);
+    orm.config.resetServiceCache();
+  });
   afterAll(async () => orm.close(true));
 
   test('generate js schema migration', async () => {

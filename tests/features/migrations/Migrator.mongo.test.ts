@@ -31,14 +31,19 @@ class MigrationTest2 extends Migration {
 describe('Migrator (mongo)', () => {
 
   let orm: MikroORM<MongoDriver>;
+  let originalMigrationsSettings: any;
 
   beforeAll(async () => {
     orm = await initORMMongo(true);
+    originalMigrationsSettings = orm.config.get('migrations');
     await orm.schema.refresh();
     await rm(process.cwd() + '/temp/migrations-mongo', { recursive: true, force: true });
   });
 
-  beforeEach(() => orm.config.resetServiceCache());
+  beforeEach(() => {
+    orm.config.set('migrations', originalMigrationsSettings);
+    orm.config.resetServiceCache();
+  });
 
   afterAll(async () => {
     await orm.close();
