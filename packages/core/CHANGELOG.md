@@ -3,6 +3,75 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.6.8](https://github.com/mikro-orm/mikro-orm/compare/v6.6.7...v6.6.8) (2026-03-01)
+
+
+### Bug Fixes
+
+* **core:** allow using property accessor on to-one relations ([06978c9](https://github.com/mikro-orm/mikro-orm/commit/06978c929879bfad1ccfc4b13583cd73cb62a197)), closes [#7211](https://github.com/mikro-orm/mikro-orm/issues/7211)
+* **core:** fix double processing of JSON properties when reloading an entity ([514ed87](https://github.com/mikro-orm/mikro-orm/commit/514ed878247d50919ec4a9bb0d6fbb6ccbb624f1))
+* **core:** preserve embeddable properties in `toPOJO` regardless of partial loading hints ([c27dbae](https://github.com/mikro-orm/mikro-orm/commit/c27dbae46310660f75107fbcbdd5547b395f5ac0))
+* **core:** preserve function expression indexes through metadata cache round-trip ([#7229](https://github.com/mikro-orm/mikro-orm/issues/7229)) ([9ae8d20](https://github.com/mikro-orm/mikro-orm/commit/9ae8d203896c28aec008b9937d5515dc4cbd903b)), closes [#7238](https://github.com/mikro-orm/mikro-orm/issues/7238)
+* **core:** use full hydration in `mergeData` for initialized entities ([5529308](https://github.com/mikro-orm/mikro-orm/commit/55293084872bdfd8e5241dedeeb0750b6f4d9394)), closes [#7205](https://github.com/mikro-orm/mikro-orm/issues/7205)
+
+
+
+
+
+## [6.6.7](https://github.com/mikro-orm/mikro-orm/compare/v6.6.6...v6.6.7) (2026-02-15)
+
+
+### Bug Fixes
+
+* **core:** do not propagate cursor related options to populate queries ([e6b9a6a](https://github.com/mikro-orm/mikro-orm/commit/e6b9a6a22efc860f8cb123713ca67b8c0ab8a180)), closes [#7148](https://github.com/mikro-orm/mikro-orm/issues/7148)
+* guard prototype.toJSON against being called on prototype itself ([#7152](https://github.com/mikro-orm/mikro-orm/issues/7152)) ([fa5290e](https://github.com/mikro-orm/mikro-orm/commit/fa5290ed121b19b4c8e13d651e40b5aa5fba40bf)), closes [#7151](https://github.com/mikro-orm/mikro-orm/issues/7151)
+
+
+### Features
+
+* **core:** add WHERE clause support to upsert via `onConflictWhere` option ([#7181](https://github.com/mikro-orm/mikro-orm/issues/7181)) ([9ed5ef5](https://github.com/mikro-orm/mikro-orm/commit/9ed5ef517d9efb914c6d29a623fe9408592626e9))
+
+
+
+
+
+## [6.6.6](https://github.com/mikro-orm/mikro-orm/compare/v6.6.5...v6.6.6) (2026-01-30)
+
+
+### Bug Fixes
+
+* **core:** ensure column name conflicts in M:N are propagated to STI child entities ([5be76ae](https://github.com/mikro-orm/mikro-orm/commit/5be76ae21ccd05e161a74631288dbbd3c6f32401)), closes [#7123](https://github.com/mikro-orm/mikro-orm/issues/7123)
+* **core:** ensure no collisions in polymorphic embeddables with shadowed properties ([b7707b4](https://github.com/mikro-orm/mikro-orm/commit/b7707b45d26a85d83bc9e394c10c84799152d7e8))
+* **core:** fix result caching for custom types ([b0ed700](https://github.com/mikro-orm/mikro-orm/commit/b0ed700647ef31ddb1e0adb5a844f1c19093a6c9)), closes [#7112](https://github.com/mikro-orm/mikro-orm/issues/7112)
+* **core:** respect `exclude` option on eager properties ([cb26a7e](https://github.com/mikro-orm/mikro-orm/commit/cb26a7e7ac0f8c3053ce51d17c4004bff9efd3c7))
+* **core:** use less strict `repository` option type to fix issues with `defineEntity` and cycles ([aeb1bb1](https://github.com/mikro-orm/mikro-orm/commit/aeb1bb1126202c21464aa8ce86e2419ef7ef39c7))
+
+
+
+
+
+## [6.6.5](https://github.com/mikro-orm/mikro-orm/compare/v6.6.4...v6.6.5) (2026-01-21)
+
+
+### Bug Fixes
+
+* **core:** always check the database when querying by PK with filters ([bd44c82](https://github.com/mikro-orm/mikro-orm/commit/bd44c823cd2c03ee04a2d7483cf35c76042c594f)), closes [#7084](https://github.com/mikro-orm/mikro-orm/issues/7084)
+* **core:** ensure `populate` hint won't include `undefined` for optional relations ([fede490](https://github.com/mikro-orm/mikro-orm/commit/fede490b499a86936ebf05a6c2c1faf7abb047d7))
+* **core:** improve handling of deeply nested composite keys in `em.create` ([8caae8f](https://github.com/mikro-orm/mikro-orm/commit/8caae8f13a60529d53777fca9397d266c59922c0)), closes [#6894](https://github.com/mikro-orm/mikro-orm/issues/6894)
+* **core:** normalize `populate` option in `Collection.matching()` for M:N relations ([#7091](https://github.com/mikro-orm/mikro-orm/issues/7091)) ([886772a](https://github.com/mikro-orm/mikro-orm/commit/886772a1901ebfd747f9edf86c1d7769733c0e2e))
+* **core:** support overlapping properties with different field names in STI ([badbc00](https://github.com/mikro-orm/mikro-orm/commit/badbc00d1ebe5610b6c4729cacfe25ca8991cbc5)), closes [#5813](https://github.com/mikro-orm/mikro-orm/issues/5813)
+* **sql:** fix populating M:N relations with `pivotEntity` that uses `mapToPk: true` ([0ab55fe](https://github.com/mikro-orm/mikro-orm/commit/0ab55fecba1e859ba8e9a59d62dd94258e99612e)), closes [#7107](https://github.com/mikro-orm/mikro-orm/issues/7107)
+
+
+### Features
+
+* **core:** improve formula callback to provide more information about the table and column mapping ([#7105](https://github.com/mikro-orm/mikro-orm/issues/7105)) ([059bf97](https://github.com/mikro-orm/mikro-orm/commit/059bf97f5c890a648a6d28858bfb45dfa803b38c)), closes [#7102](https://github.com/mikro-orm/mikro-orm/issues/7102)
+
+
+
+
+
+
 ## [6.6.4](https://github.com/mikro-orm/mikro-orm/compare/v6.6.3...v6.6.4) (2026-01-14)
 
 

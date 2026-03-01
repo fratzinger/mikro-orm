@@ -3,6 +3,45 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.6.8](https://github.com/mikro-orm/mikro-orm/compare/v6.6.7...v6.6.8) (2026-03-01)
+
+
+### Bug Fixes
+
+* **migrations:** delete snapshot file after `migration:down` ([dfcc8c6](https://github.com/mikro-orm/mikro-orm/commit/dfcc8c6177a21d292f48a1f4405b01336c2f6a92)), closes [#7210](https://github.com/mikro-orm/mikro-orm/issues/7210)
+
+
+
+
+
+## [6.6.7](https://github.com/mikro-orm/mikro-orm/compare/v6.6.6...v6.6.7) (2026-02-15)
+
+
+### Bug Fixes
+
+* **migrations:** support emitting multiline queries ([fcf360a](https://github.com/mikro-orm/mikro-orm/commit/fcf360aa7e4f6e453444d0a1d076d0d8139d57e6)), closes [#7185](https://github.com/mikro-orm/mikro-orm/issues/7185)
+
+
+
+
+
+## [6.6.6](https://github.com/mikro-orm/mikro-orm/compare/v6.6.5...v6.6.6) (2026-01-30)
+
+**Note:** Version bump only for package @mikro-orm/migrations
+
+
+
+
+
+## [6.6.5](https://github.com/mikro-orm/mikro-orm/compare/v6.6.4...v6.6.5) (2026-01-21)
+
+**Note:** Version bump only for package @mikro-orm/migrations
+
+
+
+
+
+
 ## [6.6.4](https://github.com/mikro-orm/mikro-orm/compare/v6.6.3...v6.6.4) (2026-01-14)
 
 **Note:** Version bump only for package @mikro-orm/migrations

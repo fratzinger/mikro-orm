@@ -1,7 +1,7 @@
 {
   "name": "@mikro-orm/libsql",
   "type": "module",
-  "version": "6.6.4",
+  "version": "6.6.8",
   "description": "TypeScript ORM for Node.js based on Data Mapper, Unit of Work and Identity Map patterns. Supports MongoDB, MySQL, PostgreSQL and SQLite databases as well as usage with vanilla JavaScript.",
   "exports": {
     "./package.json": "./package.json",
@@ -50,12 +50,12 @@
     "access": "public"
   },
   "dependencies": {
-    "@mikro-orm/sql": "6.6.4",
+    "@mikro-orm/sql": "6.6.8",
     "kysely": "0.28.11",
     "libsql": "0.5.22"
   },
   "devDependencies": {
-    "@mikro-orm/core": "^6.6.4"
+    "@mikro-orm/core": "^6.6.8"
   },
   "peerDependencies": {
     "@mikro-orm/core": "^6.0.0"
