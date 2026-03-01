@@ -181,7 +181,14 @@ export class ObjectCriteriaNode<T extends object> extends CriteriaNode<T> {
   override shouldInline(payload: any): boolean {
     const rawField = RawQueryFragment.isKnownFragmentSymbol(this.key);
     const scalar = Utils.isPrimaryKey(payload) || payload as unknown instanceof RegExp || payload as unknown instanceof Date || rawField;
-    const operator = Utils.isObject(payload) && Utils.getObjectQueryKeys(payload).every(k => Utils.isOperator(k, false) && k !== '$not');
+    const operator = Utils.isObject(payload) && Utils.getObjectQueryKeys(payload).every(k => {
+      if (k === '$not' && Utils.isPlainObject(payload[k])) {
+        // $not wrapping non-operator conditions (entity props) should be inlined
+        return Utils.getObjectQueryKeys(payload[k]).every(ik => Utils.isOperator(ik, false));
+      }
+
+      return Utils.isOperator(k, false);
+    });
 
     return !!this.prop && this.prop.kind !== ReferenceKind.SCALAR && !scalar && !operator;
   }
@@ -211,8 +218,8 @@ export class ObjectCriteriaNode<T extends object> extends CriteriaNode<T> {
     for (const k of Utils.getObjectQueryKeys(payload)) {
       if (RawQueryFragment.isKnownFragmentSymbol(k)) {
         o[k as unknown as string] = payload[k as unknown as string];
-      } else if (k === '$not') {
-        // $not wraps conditions like $and/$or, inline at current level
+      } else if (k === '$not' && Utils.isPlainObject(payload[k]) && Utils.getObjectQueryKeys(payload[k]).some(ik => !Utils.isOperator(ik, false))) {
+        // $not wraps entity conditions (from auto-join), inline at current level
         this.inlineCondition(k, o, payload[k]);
       } else if (Utils.isOperator(k, false)) {
         const tmp = payload[k];
