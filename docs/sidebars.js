@@ -129,7 +129,7 @@ module.exports = {
       items: [
         'logging',
         'deployment',
-        'entity-schema',
+        'define-entity',
         'using-decorators',
         'folder-based-discovery',
         'metadata-providers',

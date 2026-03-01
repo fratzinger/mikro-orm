@@ -89,6 +89,7 @@ const renames = {
   'schema-database': [{min: '7.0', from: 'database-schema'}],
   'configuration': [{min: '7.0', from: 'configuration-deployment'}],
   'wrap-helper': [{min: '7.0', from: 'entity-helper'}],
+  'define-entity': [{min: '7.0', from: 'entity-schema'}],
 };
 
 const docsRouteRegex = /^\/docs\/([^\/]+\/|)([^\/]*)$/;

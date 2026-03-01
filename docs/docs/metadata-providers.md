@@ -148,9 +148,9 @@ This is also handy in ESM projects, where this problem can arise even when each 
 
 You might have to install additional typings, one example is use of `ObjectId` in MongoDB, which requires `@types/mongodb` to be installed.
 
-## Using EntitySchema
+## Using defineEntity
 
-Alternatively, you can use [`EntitySchema`](./entity-schema.md) instead, which is suitable for JavaScript only projects.
+Alternatively, you can use [`defineEntity`](./define-entity.md) instead, which is suitable for JavaScript only projects.
 
 > If you want to have absolute control, you can also use `EntitySchema.fromMetadata()` factory method.
 

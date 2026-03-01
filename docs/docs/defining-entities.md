@@ -7,11 +7,10 @@ import TabItem from '@theme/TabItem';
 
 Entities are simple javascript objects (so called POJO) without restrictions and without the need to extend base classes. Using [entity constructors](./entity-constructors.md) works as well - they are never executed for managed entities (loaded from database). Every entity is required to have a primary key.
 
-Entities can be defined in three ways:
+Entities can be defined in two ways:
 
-- Decorated classes - the attributes of the entity, as well as each property are provided via decorators. You use `@Entity()` decorator on the class. Entity properties are decorated either with `@Property` decorator, or with one of reference decorators: `@ManyToOne`, `@OneToMany`, `@OneToOne` and `@ManyToMany`. Check out the full [decorator reference](./decorators.md).
-- `EntitySchema` helper - With `EntitySchema` helper you define the schema programmatically. You can use regular classes as well as interfaces. This approach also allows to re-use partial entity definitions (e.g. traits/mixins). Read more about this in [Defining Entities via EntitySchema section](./entity-schema.md).
-- `defineEntity` helper - Based on the `EntitySchema`, automatically infers entity interfaces using TypeScript's inference capabilities. Read more about this in [`defineEntity` section](./entity-schema#defineentity).
+- **`defineEntity` helper** - Define entities programmatically with full TypeScript type inference. You can use it with a class (recommended) or without one. Read more about this in the [`defineEntity` section](./define-entity.md).
+- **Decorated classes** - the attributes of the entity, as well as each property are provided via decorators. You use `@Entity()` decorator on the class. Entity properties are decorated either with `@Property` decorator, or with one of reference decorators: `@ManyToOne`, `@OneToMany`, `@OneToOne` and `@ManyToMany`. Check out the full [decorator reference](./decorators.md).
 
 Moreover, how the metadata extraction from decorators happens is controlled via `MetadataProvider`. Three main metadata providers are:
 
@@ -476,7 +475,7 @@ You can set default value of a property in 2 ways:
 
 1. Use a property initializer. This approach should be preferred as long as you are not using any native database function like `now()`. With this approach your entities will have the default value set even before it is actually persisted into the database (e.g. when you instantiate new entity via `new Author()` or `em.create(Author, { ... })`).
 
-> This is only possible if you have an actual entity class, not an interface. If you use `EntitySchema` without a class, or `defineEntity` helper, you can use the `onCreate` option to set the default value.
+> This is only possible if you have an actual entity class, not an interface. If you use `defineEntity` without a class, you can use the `onCreate` option to set the default value.
 
 <Tabs
 groupId="entity-def"

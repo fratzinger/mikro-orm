@@ -1,5 +1,5 @@
 ---
-title: Defining Entities via EntitySchema
+title: Defining Entities via defineEntity
 ---
 
 import Tabs from '@theme/Tabs';

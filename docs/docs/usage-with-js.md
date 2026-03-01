@@ -157,7 +157,7 @@ The `kind` parameter for relationships can be:
 
 Or you can use `ReferenceKind` enum, e.g. `ReferenceKind.MANY_TO_ONE`.
 
-> Read more about `EntitySchema` in the [EntitySchema section](./entity-schema.md).
+> Read more about `defineEntity` in the [`defineEntity` section](./define-entity.md).
 
 ## Example repository
 
