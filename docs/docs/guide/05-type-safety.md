@@ -97,7 +97,7 @@ export const ArticleSchema = defineEntity({
   },
 });
 
-export type Article = InferEntity<typeof ArticleSchema>;
+export type IArticle = InferEntity<typeof ArticleSchema>;
 ```
 
 Now the property type becomes `Ref<User>`, which prevents accidental access to unloaded properties:

@@ -161,7 +161,7 @@ export const UserSchema = defineEntity({
   },
 });
 
-export type User = InferEntity<typeof UserSchema>;
+export type IUser = InferEntity<typeof UserSchema>;
 ```
 
 So what do we have here? We use the `defineEntity` helper to create an entity schema for the `User`. The `InferEntity` type utility extracts the TypeScript type from the schema, giving us a `User` type we can use throughout our code.

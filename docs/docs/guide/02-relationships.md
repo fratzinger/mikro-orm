@@ -52,7 +52,7 @@ export const UserSchema = defineEntity({
   },
 });
 
-export type User = InferEntity<typeof UserSchema>;
+export type IUser = InferEntity<typeof UserSchema>;
 ```
 
 ## More entities
@@ -76,7 +76,7 @@ export const ArticleSchema = defineEntity({
   },
 });
 
-export type Article = InferEntity<typeof ArticleSchema>;
+export type IArticle = InferEntity<typeof ArticleSchema>;
 ```
 
 Let's break this down, there are some new additions we haven't seen before:
@@ -226,7 +226,7 @@ export const ArticleSchema = defineEntity({
   },
 });
 
-export type Article = InferEntity<typeof ArticleSchema>;
+export type IArticle = InferEntity<typeof ArticleSchema>;
 ```
 
 With `.onCreate()`, the `slug` and `description` properties are automatically optional in [`em.create()`](/api/core/class/EntityManager#create) - no additional type configuration needed!
@@ -354,7 +354,7 @@ export const UserSchema = defineEntity({
   },
 });
 
-export type User = InferEntity<typeof UserSchema>;
+export type IUser = InferEntity<typeof UserSchema>;
 ```
 
 After running `npm start`, you can see that the password is hashed, and later when you load the `Article.author`, the password is no longer selected:
@@ -390,7 +390,7 @@ export const UserSchema = defineEntity({
   },
 });
 
-export type User = InferEntity<typeof UserSchema>;
+export type IUser = InferEntity<typeof UserSchema>;
 ```
 
 MikroORM represents the relation via the `Collection` class. Before diving into what it means, let's add one more entity to the `Article` module to test the ManyToMany relation too. It will be a `Tag` entity, so you can categorize the article based on some dynamically defined tags.
@@ -411,7 +411,7 @@ export const TagSchema = defineEntity({
   },
 });
 
-export type Tag = InferEntity<typeof TagSchema>;
+export type ITag = InferEntity<typeof TagSchema>;
 ```
 
 And you need to define the owning side too, which is `Article.tags`:

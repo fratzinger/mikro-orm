@@ -97,9 +97,9 @@ export const Toothbrush = defineEntity({
   },
 });
 
-export type Person = InferEntity<typeof Person>;
-export type Employee = InferEntity<typeof Employee>;
-export type Toothbrush = InferEntity<typeof Toothbrush>;
+export type IPerson = InferEntity<typeof Person>;
+export type IEmployee = InferEntity<typeof Employee>;
+export type IToothbrush = InferEntity<typeof Toothbrush>;
 ```
 
   </TabItem>

@@ -452,7 +452,7 @@ export const SocialSchema = defineEntity({
   },
 });
 
-export type Social = InferEntity<typeof SocialSchema>;
+export type ISocial = InferEntity<typeof SocialSchema>;
 
 export const UserSchema = defineEntity({
   name: 'User',
@@ -831,7 +831,7 @@ export const ArticleListingSchema = defineEntity({
   },
 });
 
-export type ArticleListing = InferEntity<typeof ArticleListingSchema>;
+export type IArticleListing = InferEntity<typeof ArticleListingSchema>;
 ```
 
 Now create a custom repository for the `Article` entity too, and put two methods inside:
@@ -1107,7 +1107,7 @@ export const ArticleListingViewSchema = defineEntity({
   },
 });
 
-export type ArticleListingView = InferEntity<typeof ArticleListingViewSchema>;
+export type IArticleListingView = InferEntity<typeof ArticleListingViewSchema>;
 ```
 
 Unlike a virtual entity, a view entity has a primary key (`slug` in this case) and maps to a real database object. The key differences:

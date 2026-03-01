@@ -940,9 +940,9 @@ export const Owner = defineEntity({
   },
 });
 
-export type Cat = InferEntity<typeof Cat>;
-export type Dog = InferEntity<typeof Dog>;
-export type Owner = InferEntity<typeof Owner>;
+export type ICat = InferEntity<typeof Cat>;
+export type IDog = InferEntity<typeof Dog>;
+export type IOwner = InferEntity<typeof Owner>;
 ```
 
   </TabItem>

@@ -557,7 +557,7 @@ export const CommentSchema = defineEntity({
   },
 });
 
-export type Comment = InferEntity<typeof CommentSchema>;
+export type IComment = InferEntity<typeof CommentSchema>;
 ```
 
 and a OneToMany inverse side in `Article` entity:

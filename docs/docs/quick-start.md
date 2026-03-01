@@ -163,7 +163,7 @@ export const Book = defineEntity({
   },
 });
 
-export type Book = InferEntity<typeof Book>;
+export type IBook = InferEntity<typeof Book>;
 ```
 
   </TabItem>
@@ -172,7 +172,8 @@ export type Book = InferEntity<typeof Book>;
 Decorators require additional setup - see the [Using Decorators guide](./using-decorators.md) for configuration details:
 
 ```ts title="./entities/Book.ts"
-import { Entity, PrimaryKey, Property, ManyToOne, ManyToMany, Collection } from '@mikro-orm/decorators/legacy';
+import { Collection } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, ManyToOne, ManyToMany } from '@mikro-orm/decorators/legacy';
 
 @Entity()
 export class Book {
