@@ -160,6 +160,24 @@ export interface FindOptions<
    */
   populateFilter?: ObjectQuery<Entity>;
 
+  /**
+   * Index-friendly alternative to `$or` for conditions that span joined relations.
+   * Each array element becomes an independent branch combined via `UNION ALL` subquery:
+   * `WHERE pk IN (branch_1 UNION ALL branch_2 ... branch_N)`.
+   * The database plans each branch independently, enabling per-table index usage
+   * (e.g. GIN trigram indexes for fuzzy search across related entities).
+   * sql only
+   */
+  unionWhere?: ObjectQuery<Entity>[];
+
+  /**
+   * Strategy for combining `unionWhere` branches.
+   * - `'union-all'` (default) — skips deduplication, faster for most use cases.
+   * - `'union'` — deduplicates rows between branches; useful when branch overlap is very high.
+   * sql only
+   */
+  unionWhereStrategy?: 'union-all' | 'union';
+
   /** Used for ordering of the populate queries. If not specified, the value of `options.orderBy` is used. */
   populateOrderBy?: OrderDefinition<Entity>;
 
@@ -258,6 +276,13 @@ export interface NativeInsertUpdateOptions<T> {
   /** `nativeUpdate()` only option */
   upsert?: boolean;
   loggerContext?: LogContext;
+  /** sql only */
+  unionWhere?: ObjectQuery<T>[];
+  /** sql only */
+  unionWhereStrategy?: 'union-all' | 'union';
+  filters?: FilterOptions;
+  /** @internal */
+  em?: EntityManager;
 }
 
 export interface NativeInsertUpdateManyOptions<T> extends NativeInsertUpdateOptions<T> {
@@ -286,6 +311,10 @@ export interface CountOptions<T extends object, P extends string = never>  {
   populate?: Populate<T, P>;
   populateWhere?: ObjectQuery<T> | PopulateHint | `${PopulateHint}`;
   populateFilter?: ObjectQuery<T>;
+  /** @see FindOptions.unionWhere */
+  unionWhere?: ObjectQuery<T>[];
+  /** @see FindOptions.unionWhereStrategy */
+  unionWhereStrategy?: 'union-all' | 'union';
   ctx?: Transaction;
   connectionType?: ConnectionType;
   flushMode?: FlushMode | `${FlushMode}`;
@@ -309,14 +338,30 @@ export interface UpdateOptions<T> {
   filters?: FilterOptions;
   schema?: string;
   ctx?: Transaction;
+  /** sql only */
+  unionWhere?: ObjectQuery<T>[];
+  /** sql only */
+  unionWhereStrategy?: 'union-all' | 'union';
 }
 
 export interface DeleteOptions<T> extends DriverMethodOptions {
   filters?: FilterOptions;
+  /** sql only */
+  unionWhere?: ObjectQuery<T>[];
+  /** sql only */
+  unionWhereStrategy?: 'union-all' | 'union';
+  /** @internal */
+  em?: EntityManager;
 }
 
 export interface NativeDeleteOptions<T> extends DriverMethodOptions {
   filters?: FilterOptions;
+  /** sql only */
+  unionWhere?: ObjectQuery<T>[];
+  /** sql only */
+  unionWhereStrategy?: 'union-all' | 'union';
+  /** @internal */
+  em?: EntityManager;
 }
 
 export interface LockOptions extends DriverMethodOptions {

@@ -27,6 +27,7 @@ import type {
   GetReferenceOptions,
   IDatabaseDriver,
   LockOptions,
+  NativeDeleteOptions,
   NativeInsertUpdateOptions,
   StreamOptions,
   UpdateOptions,
@@ -233,6 +234,9 @@ export class EntityManager<Driver extends IDatabaseDriver = IDatabaseDriver> {
     (options as Dictionary)._populateWhere = options.populateWhere ?? this.config.get('populateWhere');
     options.populateWhere = this.createPopulateWhere({ ...where } as ObjectQuery<Entity>, options);
     options.populateFilter = await this.getJoinedFilters(meta, options);
+
+    await em.processUnionWhere(entityName, options, 'read');
+
     const results = await em.driver.find(entityName, where, { ctx: em.transactionContext, em, ...options });
 
     if (results.length === 0) {
@@ -430,6 +434,23 @@ export class EntityManager<Driver extends IDatabaseDriver = IDatabaseDriver> {
     where = this.applyDiscriminatorCondition(entityName, where);
 
     return where;
+  }
+
+  protected async processUnionWhere<
+    Entity extends object,
+    Hint extends string = never,
+  >(entityName: EntityName<Entity>, options: FindOptions<Entity, Hint, any, any> | CountOptions<Entity, Hint> | UpdateOptions<Entity> | DeleteOptions<Entity>, type: 'read' | 'update' | 'delete'): Promise<void> {
+    if (options.unionWhere?.length) {
+      if (!this.driver.getPlatform().supportsUnionWhere()) {
+        throw new Error(`unionWhere is only supported on SQL drivers`);
+      }
+
+      options.unionWhere = await Promise.all(
+        options.unionWhere.map(branch =>
+          this.processWhere(entityName, branch as FilterQuery<NoInfer<Entity>>, options as FindOptions<Entity, Hint>, type),
+        ),
+      ) as ObjectQuery<Entity>[];
+    }
   }
 
   // this method only handles the problem for mongo driver, SQL drivers have their implementation inside QueryBuilder
@@ -878,6 +899,8 @@ export class EntityManager<Driver extends IDatabaseDriver = IDatabaseDriver> {
     (options as Dictionary)._populateWhere = options.populateWhere ?? this.config.get('populateWhere');
     options.populateWhere = this.createPopulateWhere({ ...where } as ObjectQuery<Entity>, options);
     options.populateFilter = await this.getJoinedFilters(meta, options);
+    await em.processUnionWhere(entityName, options, 'read');
+
     const data = await em.driver.findOne(entityName, where, {
       ctx: em.transactionContext,
       em,
@@ -1528,11 +1551,13 @@ export class EntityManager<Driver extends IDatabaseDriver = IDatabaseDriver> {
     const em = this.getContext(false);
     em.prepareOptions(options);
 
+    await em.processUnionWhere(entityName, options, 'update');
+
     data = QueryHelper.processObjectParams(data);
-    where = await em.processWhere(entityName, where, { ...options, convertCustomTypes: false }, 'update');
+    where = await em.processWhere(entityName, where, { ...options, convertCustomTypes: false } as FindOptions<Entity>, 'update');
     validateParams(data, 'update data');
     validateParams(where, 'update condition');
-    const res = await em.driver.nativeUpdate(entityName, where, data, { ctx: em.transactionContext, ...options });
+    const res = await em.driver.nativeUpdate(entityName, where, data, { ctx: em.transactionContext, em, ...options } as NativeInsertUpdateOptions<Entity>);
 
     return res.affectedRows;
   }
@@ -1544,9 +1569,11 @@ export class EntityManager<Driver extends IDatabaseDriver = IDatabaseDriver> {
     const em = this.getContext(false);
     em.prepareOptions(options);
 
-    where = await em.processWhere(entityName, where, options, 'delete');
+    await em.processUnionWhere(entityName, options, 'delete');
+
+    where = await em.processWhere(entityName, where as FilterQuery<Entity>, options as FindOptions<Entity>, 'delete') as typeof where;
     validateParams(where, 'delete condition');
-    const res = await em.driver.nativeDelete(entityName, where, { ctx: em.transactionContext, ...options });
+    const res = await em.driver.nativeDelete(entityName, where, { ctx: em.transactionContext, em, ...options } as NativeDeleteOptions<Entity>);
 
     return res.affectedRows;
   }
@@ -1791,6 +1818,8 @@ export class EntityManager<Driver extends IDatabaseDriver = IDatabaseDriver> {
     options.populateFilter = await this.getJoinedFilters(meta, options as FindOptions<Entity>);
     validateParams(where);
     delete (options as FindOptions<Entity>).orderBy;
+
+    await em.processUnionWhere(entityName, options as FindOptions<Entity, Hint>, 'read');
 
     const cacheKey = em.cacheKey(entityName, options, 'em.count', where);
     const cached = await em.tryCache(entityName, options.cache, cacheKey);

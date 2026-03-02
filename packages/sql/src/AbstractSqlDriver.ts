@@ -192,6 +192,10 @@ export abstract class AbstractSqlDriver<
       return this.findVirtual<T>(entityName, where, options);
     }
 
+    if (options.unionWhere?.length) {
+      where = await this.applyUnionWhere(meta, where, options);
+    }
+
     const qb = await this.createQueryBuilderFromOptions(meta, where, options);
     const result = await this.rethrow(qb.execute('all'));
 
@@ -739,6 +743,10 @@ export abstract class AbstractSqlDriver<
       return this.countVirtual<T>(entityName, where, options);
     }
 
+    if (options.unionWhere?.length) {
+      where = await this.applyUnionWhere(meta, where, options);
+    }
+
     options = { populate: [], ...options };
     const populate = options.populate as unknown as PopulateOptions<T>[];
     const joinedProps = this.joinedProps(meta, populate, options as FindOptions<T>);
@@ -999,6 +1007,10 @@ export abstract class AbstractSqlDriver<
       where = { [meta.primaryKeys[0] ?? pks[0]]: where } as FilterQuery<T>;
     }
 
+    if (!options.upsert && options.unionWhere?.length) {
+      where = await this.applyUnionWhere(meta, where as ObjectQuery<T>, options, true) as FilterQuery<T>;
+    }
+
     if (Utils.hasObjectKeys(data)) {
       const qb = this.createQueryBuilder<T>(entityName, options.ctx, 'write', options.convertCustomTypes, options.loggerContext).withSchema(
         this.getSchemaName(meta, options),
@@ -1229,6 +1241,10 @@ export abstract class AbstractSqlDriver<
 
     if (Utils.isPrimaryKey(where) && pks.length === 1) {
       where = { [pks[0]]: where };
+    }
+
+    if (options.unionWhere?.length) {
+      where = await this.applyUnionWhere(meta, where as ObjectQuery<T>, options, true);
     }
 
     const qb = this.createQueryBuilder(entityName, options.ctx, 'write', false, options.loggerContext)
@@ -2204,6 +2220,65 @@ export abstract class AbstractSqlDriver<
 
     /* v8 ignore next */
     return { $and: [options.populateWhere, where] } as unknown as ObjectQuery<T>;
+  }
+
+  /**
+   * Builds a UNION ALL (or UNION) subquery from `unionWhere` branches and merges it
+   * into the main WHERE as `pk IN (branch_1 UNION ALL branch_2 ...)`.
+   * Each branch is planned independently by the database, enabling per-table index usage.
+   */
+  protected async applyUnionWhere<T extends object>(
+    meta: EntityMetadata<T>,
+    where: ObjectQuery<T>,
+    options: FindOptions<T, any, any, any> | CountOptions<T> | NativeInsertUpdateOptions<T> | DeleteOptions<T>,
+    forDml = false,
+  ): Promise<ObjectQuery<T>> {
+    const unionWhere = (options as FindOptions<T>).unionWhere!;
+    const strategy = (options as FindOptions<T>).unionWhereStrategy ?? 'union-all';
+    const schema = this.getSchemaName(meta, options);
+    const connectionType = this.resolveConnectionType({
+      ctx: options.ctx,
+      connectionType: (options as FindOptions<T>).connectionType,
+    });
+
+    const branchQbs: QueryBuilder<any>[] = [];
+
+    for (const branch of unionWhere) {
+      const qb = this.createQueryBuilder<T>(
+        meta.class, options.ctx, connectionType, false,
+        (options as FindOptions<T>).logging,
+      ).withSchema(schema);
+
+      const pkFields = meta.primaryKeys.map(pk => {
+        const prop = meta.properties[pk];
+        return `${qb.alias}.${prop.fieldNames[0]}`;
+      });
+
+      qb.select(pkFields as any).where(branch as any);
+
+      if (options.em) {
+        await qb.applyJoinedFilters(options.em, options.filters);
+      }
+
+      branchQbs.push(qb);
+    }
+
+    const [first, ...rest] = branchQbs;
+    const unionQb = strategy === 'union' ? first.union(...rest) : first.unionAll(...rest);
+    const pkHash = Utils.getPrimaryKeyHash(meta.primaryKeys);
+
+    // MySQL does not allow referencing the target table in a subquery
+    // for UPDATE/DELETE, so we wrap the union in a derived table.
+    if (forDml) {
+      const { sql, params } = unionQb.toQuery();
+      return {
+        $and: [where, { [pkHash]: { $in: raw(`select * from (${sql}) as __u`, params) } }],
+      } as ObjectQuery<T>;
+    }
+
+    return {
+      $and: [where, { [pkHash]: { $in: unionQb.toRaw() } }],
+    } as ObjectQuery<T>;
   }
 
   protected buildOrderBy<T extends object>(
